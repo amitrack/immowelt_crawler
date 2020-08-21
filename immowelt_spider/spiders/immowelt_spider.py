@@ -17,13 +17,13 @@ class ImmoweltSpider(scrapy.Spider):
     result_list_xpath = """//*[contains(@class,"js-listitem")]/a/@href"""
     next_page_xpath = """//*[@id="nlbPlus"]/@href"""
     result_xpath = """/html/body/script[1]/text()"""
+    image_xpath = """/html/head/meta[@property="og:image"][1]/@content"""
     ajax_url = "https://www.immowelt.de/liste/getlistitems"
     custom_settings = {"CONNECTION_STRING": "EXAMPLE_CONNECTION_STRING",
                        "CRAWL_ID": "DEFAULT"}
     offset = 0
     page_size = 4
     simple_mappings = [("object_id", "immowelt_id"),
-                       ("broker_id", "broker_id"),
                        ("object_price", "price"),
                        ("object_currency", "currency"),
                        ("object_rooms", "rooms"),
@@ -35,7 +35,8 @@ class ImmoweltSpider(scrapy.Spider):
                     ("object_marketingtype", "transaction_type"),
                     ("object_district", "district"),
                     ("object_federalstate", "federal_state"),
-                    ("object_state", "country")]
+                    ("object_state", "country"),
+                    ("object_objektart", "type")]
     address_xpath = """//*[@id="divLageinfos"]/div[1]/div/div/div/div[1]/div[2]/p/text()"""
     brokers_url_xpath = """//*[@id="divAnbieter"]/div/div/div[1]/div/div[2]/div/div/div[1]/ul/li[3]/a/@href"""
     brokers_name_xpath = """//*[@id="srcLabelMessage"]/text()"""
@@ -73,6 +74,9 @@ class ImmoweltSpider(scrapy.Spider):
                                  callback=self.parse_result)
 
     def parse_result(self, response):
+        extract = lambda xpath, target_label: self.extract_value(xpath,
+                                                                 target_label,
+                                                                 response, item)
         result_js = response.xpath(self.result_xpath).extract_first()
         if result_js is None:
             raise DropItem("Invalid item found")
@@ -85,20 +89,26 @@ class ImmoweltSpider(scrapy.Spider):
             item[target] = value.get(source, [None])[0]
         if item["features"] is None:
             item["features"] = []
-        broker_url = response.xpath(self.brokers_url_xpath).extract_first()
-        if broker_url:
-            item["broker_url"] = broker_url
-        broker_name = response.xpath(self.brokers_name_xpath).extract_first().replace("Ihre Nachricht an","").strip()
-        if "den Anbieter" not in  broker_name:
-            item["broker_name"] = broker_name.strip()
-        else:
+        item["type"] = item["type"].upper()
+        extract(self.brokers_url_xpath, "broker_url")
+        extract(self.brokers_name_xpath, "broker_name")
+        item["broker_name"].replace("Ihre Nachricht an ", "")
+        if "den Anbieter" in item["broker_name"]:
             item["broker_name"] = ""
-        address = response.xpath(self.address_xpath).extract_first()
-        if address:
-            item["address"] = address.strip()
-        item["title"] = response.xpath(self.title_xpath).extract_first().strip()
+        extract(self.image_xpath, "image_src")
+        extract(self.address_xpath, "address")
+        if item["zip_code"]:
+            if item["address"].startswith(item["zip_code"]):
+                item["city"] = item["address"].replace(item["zip_code"],
+                                                       "").strip()
+        extract(self.title_xpath, "title")
         item["url"] = response.request.url
         yield item
+
+    def extract_value(self, xpath_string: str, target_label, response, item):
+        value = response.xpath(xpath_string).extract_first()
+        if value:
+            item[target_label] = value.strip()
 
     def extract_params(self, url):
         params = urlparse.urlparse(url).query
