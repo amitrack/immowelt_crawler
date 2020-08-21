@@ -40,8 +40,11 @@ class PersistencePipeline(object):
             self.engine = db_connect(connection_string)
             create_table(self.engine)
             self.Session = sessionmaker(bind=self.engine)
-            with self.engine.connect() as con:
-                con.execute(view_query)
+            try:
+                with self.engine.connect() as con:
+                    con.execute(view_query)
+            except:
+                pass
         except Exception as err:
             traceback.print_tb(err.__traceback__)
             sys.exit(0)
