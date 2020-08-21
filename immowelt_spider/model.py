@@ -41,7 +41,7 @@ class Listing(Base):
     broker_url = Column(String)
     image_src = Column(String)
     type = Column(String)
-    broker_name = Column(String)
+    broker = Column(String)
     first_found = Column(DateTime)
     found_last = Column(DateTime)
     crawl_id = Column(String)

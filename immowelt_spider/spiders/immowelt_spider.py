@@ -91,10 +91,10 @@ class ImmoweltSpider(scrapy.Spider):
             item["features"] = []
         item["type"] = item["type"].upper()
         extract(self.brokers_url_xpath, "broker_url")
-        extract(self.brokers_name_xpath, "broker_name")
-        item["broker_name"].replace("Ihre Nachricht an ", "")
-        if "den Anbieter" in item["broker_name"]:
-            item["broker_name"] = ""
+        extract(self.brokers_name_xpath, "broker")
+        item["broker"] = item["broker"].replace("Ihre Nachricht an ", "")
+        if "den Anbieter" in item["broker"]:
+            item["broker"] = ""
         extract(self.image_xpath, "image_src")
         extract(self.address_xpath, "address")
         if item["zip_code"]:

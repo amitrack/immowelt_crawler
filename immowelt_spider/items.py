@@ -29,7 +29,7 @@ class ImmoweltItem(scrapy.Item):
     country = scrapy.Field()
     address = scrapy.Field()
     broker_url = scrapy.Field()
-    broker_name = scrapy.Field()
+    broker = scrapy.Field()
     image_src = scrapy.Field()
 
     def to_listing(self):
