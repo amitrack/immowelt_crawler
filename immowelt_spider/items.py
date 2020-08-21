@@ -32,6 +32,10 @@ class ImmoweltItem(scrapy.Item):
     broker = scrapy.Field()
     image_src = scrapy.Field()
     area = scrapy.Field()
+    balcony = scrapy.Field()
+    garden = scrapy.Field()
+    kitchen = scrapy.Field()
+    cellar = scrapy.Field()
 
     def to_listing(self):
         listing = Listing()

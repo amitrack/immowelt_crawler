@@ -81,7 +81,10 @@ class ImmoweltSpider(scrapy.Spider):
         if result_js is None:
             raise DropItem("Invalid item found")
         parsed_results = js2xml.parse(result_js)
-        value = js2xml.getall(parsed_results.xpath("var")[0])[0]
+        try:
+            value = js2xml.getall(parsed_results.xpath("var")[0])[0]
+        except:
+            return None
         item = ImmoweltItem()
         for source, target in self.simple_mappings:
             item[target] = value.get(source, None)
@@ -101,8 +104,11 @@ class ImmoweltSpider(scrapy.Spider):
         if item["area"] == "k.A.":
             item["area"] = 0
         else:
-            item["area"] = ast.literal_eval(
-                item["area"].replace("m²", "").replace(".", ""))
+            try:
+                item["area"] = ast.literal_eval(
+                    item["area"].replace("m²", "").replace(".", ""))
+            except:
+                item["area"] = 0
         if item["zip_code"]:
             if item["address"].startswith(item["zip_code"]):
                 item["city"] = item["address"].replace(item["zip_code"],
@@ -110,6 +116,11 @@ class ImmoweltSpider(scrapy.Spider):
         extract(self.title_xpath, "title")
         item["immowelt_id"] = str(item["immowelt_id"])
         item["url"] = response.request.url
+        item["kitchen"] = "Einbauküche" in item["features"]
+        item["garden"] = "Garten" in item["features"]
+        item["cellar"] = "unterkellert" in item["features"]
+        item["balcony"] = "Balkon" in item["features"]
+
         yield item
 
     def extract_value(self, xpath_string: str, target_label, response, item):

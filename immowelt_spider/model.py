@@ -1,5 +1,5 @@
 from sqlalchemy import (
-    Integer, String, DateTime,ARRAY, Numeric)
+    Integer, String, DateTime, ARRAY, Numeric, Boolean)
 from sqlalchemy import create_engine, Column
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -46,3 +46,7 @@ class Listing(Base):
     found_last = Column(DateTime)
     crawl_id = Column(String)
     area = Column(Numeric)
+    balcony = Column(String)
+    garden = Column(String)
+    kitchen = Column(String)
+    cellar = Column(String)
