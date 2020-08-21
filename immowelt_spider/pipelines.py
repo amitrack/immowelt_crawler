@@ -9,11 +9,14 @@ import sys
 import traceback
 from datetime import datetime
 
-from itemadapter import ItemAdapter
 from scrapy.exceptions import DropItem
 from sqlalchemy.orm import sessionmaker
 
 from immowelt_spider.model import Listing, db_connect, create_table
+
+view_query = """create or replace view all_listings as
+Select immo_id as source_id, url, title address, zip_code, city, district, NULL as country,NULL as broker_url, contact_name as broker, sqm as living_area, "type", transaction_type, first_found, found_last, 'immobilienscout24.de' as "source" from public.listing union 
+Select immowelt_id as source_id, url, title address, zip_code, city, district, country, broker, broker_url, living_area, "type", transaction_type, first_found, found_last, 'immowelt.de' as "source" from public.immowelt_listings"""
 
 
 class PersistencePipeline(object):
@@ -30,6 +33,8 @@ class PersistencePipeline(object):
             self.engine = db_connect(connection_string)
             create_table(self.engine)
             self.Session = sessionmaker(bind=self.engine)
+            with self.engine.connect() as con:
+                con.execute(view_query)
         except Exception as err:
             traceback.print_tb(err.__traceback__)
             sys.exit(0)

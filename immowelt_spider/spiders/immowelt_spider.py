@@ -1,9 +1,7 @@
-import logging
 
 import scrapy
 import js2xml
 import urllib.parse as urlparse
-from urllib.parse import parse_qs
 
 from scrapy.exceptions import DropItem
 
@@ -102,6 +100,7 @@ class ImmoweltSpider(scrapy.Spider):
                 item["city"] = item["address"].replace(item["zip_code"],
                                                        "").strip()
         extract(self.title_xpath, "title")
+        item["immowelt_id"] = str(item["immowelt_id"])
         item["url"] = response.request.url
         yield item
 

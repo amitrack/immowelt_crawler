@@ -22,7 +22,7 @@ class Listing(Base):
     __tablename__ = "immowelt_listings"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    immowelt_id = Column(Numeric, primary_key=True, unique=True)
+    immowelt_id = Column(String, primary_key=True, unique=True)
     title = Column(String)
     url = Column(String)
     gok = Column(String)
