@@ -15,7 +15,7 @@ class ImmoweltItem(scrapy.Item):
     title = scrapy.Field()
     url = scrapy.Field()
     gok = scrapy.Field()
-    city=scrapy.Field()
+    city = scrapy.Field()
     price = scrapy.Field()
     currency = scrapy.Field()
     rooms = scrapy.Field()
@@ -31,6 +31,7 @@ class ImmoweltItem(scrapy.Item):
     broker_url = scrapy.Field()
     broker = scrapy.Field()
     image_src = scrapy.Field()
+    area = scrapy.Field()
 
     def to_listing(self):
         listing = Listing()

@@ -45,3 +45,4 @@ class Listing(Base):
     first_found = Column(DateTime)
     found_last = Column(DateTime)
     crawl_id = Column(String)
+    area = Column(Numeric)

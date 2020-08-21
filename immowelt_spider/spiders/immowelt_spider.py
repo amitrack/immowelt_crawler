@@ -1,4 +1,3 @@
-
 import scrapy
 import js2xml
 import urllib.parse as urlparse
@@ -6,6 +5,8 @@ import urllib.parse as urlparse
 from scrapy.exceptions import DropItem
 
 from immowelt_spider.items import ImmoweltItem
+
+import ast
 
 
 class ImmoweltSpider(scrapy.Spider):
@@ -16,6 +17,7 @@ class ImmoweltSpider(scrapy.Spider):
     next_page_xpath = """//*[@id="nlbPlus"]/@href"""
     result_xpath = """/html/body/script[1]/text()"""
     image_xpath = """/html/head/meta[@property="og:image"][1]/@content"""
+    land_area_xpath = """//div[contains(@class, 'hardfacts')]/div[last()]/text()[1]"""
     ajax_url = "https://www.immowelt.de/liste/getlistitems"
     custom_settings = {"CONNECTION_STRING": "EXAMPLE_CONNECTION_STRING",
                        "CRAWL_ID": "DEFAULT"}
@@ -95,6 +97,12 @@ class ImmoweltSpider(scrapy.Spider):
             item["broker"] = ""
         extract(self.image_xpath, "image_src")
         extract(self.address_xpath, "address")
+        extract(self.land_area_xpath, "area")
+        if item["area"] == "k.A.":
+            item["area"] = 0
+        else:
+            item["area"] = ast.literal_eval(
+                item["area"].replace("m²", "").replace(".", ""))
         if item["zip_code"]:
             if item["address"].startswith(item["zip_code"]):
                 item["city"] = item["address"].replace(item["zip_code"],

@@ -14,9 +14,16 @@ from sqlalchemy.orm import sessionmaker
 
 from immowelt_spider.model import Listing, db_connect, create_table
 
-view_query = """create or replace view all_listings as
-Select immo_id as source_id, url, title address, zip_code, city, district, NULL as country,NULL as broker_url, contact_name as broker, sqm as living_area, "type", transaction_type, first_found, found_last, 'immobilienscout24.de' as "source" from public.listing union 
-Select immowelt_id as source_id, url, title address, zip_code, city, district, country, broker, broker_url, living_area, "type", transaction_type, first_found, found_last, 'immowelt.de' as "source" from public.immowelt_listings"""
+view_query = """CREATE OR REPLACE VIEW all_listings as
+SELECT immo_id as source_id, url, title address, zip_code, city, district,
+NULL as country, NULL as broker_url, contact_name as broker, sqm as living_area,
+area, rooms, price, "type", transaction_type, first_found,
+found_last, crawl_id, 'immobilienscout24.de' as "source" from public.listing 
+union 
+SELECT immowelt_id as source_id, url, title address, zip_code, city, district,
+country, broker, broker_url, living_area, area, rooms, price, "type",
+transaction_type, first_found, found_last, crawl_id,
+'immowelt.de' as "source" from public.immowelt_listings"""
 
 
 class PersistencePipeline(object):
