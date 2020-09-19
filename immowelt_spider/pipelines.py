@@ -14,18 +14,6 @@ from sqlalchemy.orm import sessionmaker
 
 from immowelt_spider.model import Listing, db_connect, create_table
 
-view_query = """CREATE OR REPLACE VIEW all_listings as
-SELECT immo_id as source_id, url, title address, zip_code, city, district,
-NULL as country, NULL as broker_url, contact_name as broker, sqm as living_area,
-area, rooms, price, "type", transaction_type, first_found,
-found_last, crawl_id, 'immobilienscout24.de' as "source" from public.listing 
-union 
-SELECT immowelt_id as source_id, url, title address, zip_code, city, district,
-country, broker, broker_url, living_area, area, rooms, price, "type",
-transaction_type, first_found, found_last, crawl_id,
-'immowelt.de' as "source" from public.immowelt_listings"""
-
-
 class PersistencePipeline(object):
     @classmethod
     def from_crawler(cls, crawler):
@@ -40,11 +28,6 @@ class PersistencePipeline(object):
             self.engine = db_connect(connection_string)
             create_table(self.engine)
             self.Session = sessionmaker(bind=self.engine)
-            try:
-                with self.engine.connect() as con:
-                    con.execute(view_query)
-            except:
-                pass
         except Exception as err:
             traceback.print_tb(err.__traceback__)
             sys.exit(0)

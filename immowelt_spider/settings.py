@@ -7,7 +7,7 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = 'ImmoweltSpider'
+BOT_NAME = 'immowelt'
 
 SPIDER_MODULES = ['immowelt_spider.spiders']
 NEWSPIDER_MODULE = 'immowelt_spider.spiders'

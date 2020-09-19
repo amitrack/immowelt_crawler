@@ -10,7 +10,7 @@ import ast
 
 
 class ImmoweltSpider(scrapy.Spider):
-    name = 'immowelt_spider'
+    name = 'immowelt'
     allowed_domains = ['immowelt.de']
     # start_urls = ['http://immowelt.de/']
     result_list_xpath = """//*[contains(@class,"js-listitem")]/a/@href"""
